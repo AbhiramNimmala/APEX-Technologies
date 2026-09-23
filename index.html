@@ -1,0 +1,1169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Apex: post the thing you built, prove it works, and reach the investors who back builders.">
+<meta property="og:title" content="Apex Technologies">
+<meta property="og:description" content="You built it. We'll help you summit.">
+<meta name="theme-color" content="#050506">
+<title>Apex Technologies</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Manrope:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Apex commits to one visual world: black obsidian and metallic gold. Single theme by design. */
+:root{
+  --void:#050506; --obsidian:#0C0C0F; --graphite:#16161B; --line:#2A2620; --line-gold:rgba(212,175,55,.28);
+  --gold:#D4AF37; --champagne:#F1E0A6; --bronze:#8A6A22; --ivory:#EDE6D3; --muted:#8E8878; --dim:#5E594D;
+  --metal:linear-gradient(100deg,#8A6A22 0%,#D4AF37 22%,#FFF3C4 38%,#D4AF37 52%,#9C7A2A 70%,#F1E0A6 86%,#B8932F 100%);
+  --display:"Cinzel",ui-serif,Georgia,"Times New Roman",serif;
+  --body:"Manrope",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--void);color:var(--ivory);font:16px/1.65 var(--body);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:1.5px solid var(--gold);outline-offset:3px;border-radius:3px}
+::selection{background:rgba(212,175,55,.35);color:#fff}
+.metal{background:var(--metal);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:sheen 9s ease-in-out infinite}
+@keyframes sheen{0%,100%{background-position:0% 0}50%{background-position:100% 0}}
+.eyebrow{font:500 11.5px/1 var(--mono);letter-spacing:.32em;text-transform:uppercase;color:var(--gold)}
+.latin{font-family:var(--display);letter-spacing:.28em;text-transform:uppercase}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:clamp(18px,4vw,40px)}
+
+/* ---------------- nav ---------------- */
+.nav{position:fixed;left:0;right:0;top:0;z-index:40;padding-top:env(safe-area-inset-top,0px);
+  background:linear-gradient(180deg,rgba(5,5,6,.86),rgba(5,5,6,0));}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:18px;height:74px}
+.logo{display:flex;align-items:center;gap:12px;text-decoration:none}
+.logo svg{width:30px;height:30px}
+.logo b{font:600 17px/1 var(--display);letter-spacing:.42em}
+.links{display:flex;gap:4px;align-items:center;list-style:none;margin:0;padding:0}
+.links a{display:flex;align-items:baseline;gap:7px;padding:9px 12px;text-decoration:none;font:500 12.5px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);border-radius:2px;transition:color .25s}
+.links a i{font:500 10px/1 var(--display);font-style:normal;color:var(--dim);letter-spacing:.1em}
+.links a:hover,.links a[aria-current="page"]{color:var(--champagne)}
+.links a[aria-current="page"] i{color:var(--gold)}
+.links a.cta{border:1px solid var(--line-gold);color:var(--champagne);padding:10px 16px;margin-left:8px}
+.links a.cta:hover{border-color:var(--gold);background:rgba(212,175,55,.08)}
+.burger{display:none;background:none;border:1px solid var(--line-gold);padding:9px 13px;font:500 12px/1 var(--mono);letter-spacing:.2em;color:var(--champagne);cursor:pointer}
+@media (max-width:920px){
+  .burger{display:block}
+  .links{display:none;position:fixed;inset:74px 0 auto 0;flex-direction:column;align-items:stretch;padding:14px clamp(18px,4vw,40px) 22px;background:rgba(5,5,6,.97);border-bottom:1px solid var(--line)}
+  .links.open{display:flex}
+  .links a{padding:14px 4px;font-size:13px}
+  .links a.cta{margin:8px 0 0;justify-content:center}
+}
+
+/* ---------------- altimeter rail ---------------- */
+.alt{position:fixed;right:clamp(10px,2vw,26px);top:50%;transform:translateY(-50%);z-index:30;display:flex;flex-direction:column;align-items:flex-end;gap:10px;pointer-events:none}
+.alt .num{font:500 11px/1 var(--mono);letter-spacing:.14em;color:var(--gold);font-variant-numeric:tabular-nums}
+.alt .bar{width:1px;height:180px;background:linear-gradient(var(--gold),rgba(212,175,55,.08));position:relative}
+.alt .tick{position:absolute;right:0;width:9px;height:1px;background:var(--gold);transition:top .9s cubic-bezier(.7,0,.2,1)}
+.alt .lab{font:500 10px/1 var(--mono);letter-spacing:.24em;color:var(--muted);writing-mode:vertical-rl;text-transform:uppercase}
+@media (max-width:760px){.alt{display:none}}
+
+/* ---------------- pages ---------------- */
+main{position:relative;min-height:100%}
+.page{position:relative;min-height:100vh;min-height:100dvh;padding-block:calc(110px + env(safe-area-inset-top,0px)) 90px}
+.page.in .rv{animation:reveal .95s cubic-bezier(.2,.7,.1,1) both}
+.page.in .rv:nth-child(2){animation-delay:.08s}.page.in .rv:nth-child(3){animation-delay:.16s}.page.in .rv:nth-child(4){animation-delay:.24s}.page.in .rv:nth-child(5){animation-delay:.32s}.page.in .rv:nth-child(6){animation-delay:.4s}
+@keyframes reveal{from{opacity:0;transform:translateY(26px);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+@media (prefers-reduced-motion:reduce){.page.in .rv{animation:none}.metal{animation:none}}
+h1,h2,h3{text-wrap:balance}
+.h-page{font:500 clamp(34px,5.6vw,68px)/1.04 var(--display);letter-spacing:.04em;margin:18px 0 18px}
+.lede{font-size:clamp(16.5px,1.5vw,19px);color:var(--muted);max-width:60ch;margin:0}
+.lede b{color:var(--ivory);font-weight:500}
+.btn{display:inline-flex;align-items:center;gap:12px;padding:15px 24px;text-decoration:none;cursor:pointer;border:1px solid var(--line-gold);background:transparent;color:var(--champagne);font:500 12.5px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;position:relative;overflow:hidden;transition:border-color .3s,color .3s}
+.btn::before{content:"";position:absolute;inset:0;background:var(--metal);background-size:200% 100%;transform:translateX(-101%);transition:transform .55s cubic-bezier(.7,0,.2,1);z-index:-1}
+.btn:hover{color:#0b0b0d;border-color:var(--gold)}
+.btn:hover::before{transform:none}
+.btn.solid{color:#0b0b0d;border-color:var(--gold);isolation:isolate}
+.btn.solid::before{transform:none}
+.btn.solid:hover::before{animation:sheen 2.4s linear infinite}
+.btn svg{width:14px;height:14px}
+.btn{isolation:isolate}
+.btns{display:flex;flex-wrap:wrap;gap:12px}
+
+/* ---------------- SUMMIT (landing) ---------------- */
+#p-summit{padding:0;overflow:hidden}
+#everest{position:absolute;inset:0;width:100%;height:100%;display:block}
+.summit-ui{position:relative;z-index:2;min-height:100vh;min-height:100dvh;display:grid;grid-template-rows:1fr auto;padding-block:calc(118px + env(safe-area-inset-top,0px)) 34px;pointer-events:none}
+.summit-ui a,.summit-ui button{pointer-events:auto}
+.hero{display:grid;align-content:start;gap:18px;max-width:760px}
+.motto{font:500 clamp(12px,1.25vw,15px)/1 var(--display);letter-spacing:.55em;color:var(--gold);display:flex;align-items:center;gap:16px}
+.motto::before{content:"";width:40px;height:1px;background:var(--gold)}
+.word{font:600 clamp(64px,13vw,168px)/.86 var(--display);letter-spacing:.14em;margin:6px 0 0;margin-left:-.06em}
+.slogan{font:300 clamp(20px,2.6vw,32px)/1.25 var(--body);color:var(--ivory);margin:6px 0 0;letter-spacing:.01em}
+.slogan em{font-style:normal;color:var(--champagne)}
+.translate{font:400 13px/1.5 var(--mono);color:var(--muted);letter-spacing:.06em;margin:0}
+.hud{display:flex;justify-content:space-between;align-items:end;gap:18px;flex-wrap:wrap}
+.coords{display:grid;grid-template-columns:repeat(3,auto);gap:4px 26px;font:400 11.5px/1.4 var(--mono);letter-spacing:.14em;color:var(--muted)}
+.coords b{display:block;color:var(--champagne);font-weight:500;font-size:13px;letter-spacing:.06em;font-variant-numeric:tabular-nums}
+@media (max-width:620px){.coords{grid-template-columns:repeat(2,auto)}}
+.scrollcue{font:500 11px/1 var(--mono);letter-spacing:.3em;color:var(--muted);text-transform:uppercase;display:flex;gap:10px;align-items:center;text-decoration:none}
+.scrollcue span{width:34px;height:1px;background:var(--gold);display:inline-block;animation:cue 2.4s ease-in-out infinite;transform-origin:left}
+@keyframes cue{0%,100%{transform:scaleX(.3)}50%{transform:scaleX(1)}}
+
+/* ---------------- shared page bits ---------------- */
+.head-row{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(24px,5vw,72px);align-items:end;margin-bottom:clamp(40px,6vw,72px)}
+@media (max-width:860px){.head-row{grid-template-columns:1fr}}
+.rule{height:1px;background:linear-gradient(90deg,var(--gold),rgba(212,175,55,0));margin-block:clamp(40px,6vw,64px)}
+.bgtopo{position:absolute;inset:0;z-index:-1;opacity:.5;pointer-events:none}
+
+/* ---------------- ASCENT ---------------- */
+.wall{border:1px solid var(--line);padding:clamp(22px,3vw,34px);display:grid;grid-template-columns:auto 1fr;gap:clamp(18px,3vw,40px);align-items:center;background:linear-gradient(120deg,rgba(212,175,55,.06),rgba(212,175,55,0) 60%)}
+@media (max-width:700px){.wall{grid-template-columns:1fr}}
+.wall .q{font:500 clamp(28px,4vw,48px)/1.05 var(--display);letter-spacing:.04em;white-space:nowrap}
+.wall p{margin:0;color:var(--muted);max-width:62ch}
+.camps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+@media (max-width:860px){.camps{grid-template-columns:1fr}}
+.camp{padding:clamp(22px,3vw,36px) clamp(18px,2.4vw,30px);border-right:1px solid var(--line);position:relative;display:grid;gap:14px;align-content:start;transition:background .4s}
+.camp:last-child{border-right:0}
+@media (max-width:860px){.camp{border-right:0;border-bottom:1px solid var(--line)}.camp:last-child{border-bottom:0}}
+.camp:hover{background:rgba(212,175,55,.045)}
+.camp .elev{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.camp .elev span{font:500 11px/1 var(--mono);letter-spacing:.22em;color:var(--muted);text-transform:uppercase}
+.camp .elev b{font:500 13px/1 var(--mono);color:var(--gold);font-variant-numeric:tabular-nums}
+.camp .rn{font:600 58px/1 var(--display);letter-spacing:.06em}
+.camp h3{font:500 24px/1.15 var(--display);letter-spacing:.06em;margin:0}
+.camp p{margin:0;color:var(--muted);font-size:15.5px}
+.camp ul{margin:0;padding:0;list-style:none;display:grid;gap:8px;font-size:14.5px}
+.camp li{display:flex;gap:10px;color:var(--ivory)}
+.camp li::before{content:"";width:5px;height:5px;margin-top:9px;flex:none;background:var(--gold);transform:rotate(45deg)}
+.sides{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:760px){.sides{grid-template-columns:1fr}}
+.side{border:1px solid var(--line);padding:clamp(22px,3vw,32px);display:grid;gap:14px;align-content:start;background:var(--obsidian)}
+.side h3{font:500 22px/1.2 var(--display);letter-spacing:.08em;margin:0}
+.side p{margin:0;color:var(--muted)}
+.price{font:500 13px/1 var(--mono);letter-spacing:.14em;color:var(--gold)}
+
+/* ---------------- EXPEDITIONS ---------------- */
+.flag{display:grid;grid-template-columns:1.05fr .95fr;border:1px solid var(--line-gold);background:var(--obsidian);position:relative;overflow:hidden}
+@media (max-width:900px){.flag{grid-template-columns:1fr}}
+.flag::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,rgba(255,243,196,0) 30%,rgba(255,243,196,.07) 45%,rgba(255,243,196,0) 60%);transform:translateX(-100%);transition:transform 1.2s ease}
+.flag:hover::after{transform:translateX(100%)}
+.flag-art{position:relative;min-height:340px;border-right:1px solid var(--line)}
+@media (max-width:900px){.flag-art{border-right:0;border-bottom:1px solid var(--line)}}
+.flag-art canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.flag-body{padding:clamp(24px,3.4vw,44px);display:grid;gap:16px;align-content:start}
+.flag h3{font:600 clamp(40px,5vw,64px)/1 var(--display);letter-spacing:.1em;margin:0}
+.flag .tagline{font-size:18px;margin:0}
+.flag .tagline em{font-style:normal;color:var(--champagne)}
+.meta{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:500 11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;padding:7px 10px;border:1px solid var(--line);color:var(--muted)}
+.chip.g{border-color:var(--line-gold);color:var(--gold)}
+.figs{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.figs div{padding:14px 10px;border-right:1px solid var(--line)}
+.figs div:last-child{border-right:0}
+.figs b{display:block;font:500 22px/1 var(--display);color:var(--champagne)}
+.figs span{font:400 11px/1.3 var(--mono);letter-spacing:.08em;color:var(--muted)}
+@media (max-width:520px){.figs{grid-template-columns:1fr 1fr}.figs div:nth-child(2){border-right:0}.figs div:nth-child(-n+2){border-bottom:1px solid var(--line)}}
+.links-row{display:flex;flex-wrap:wrap;gap:8px 20px}
+.links-row a{font:500 12px/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--champagne);text-decoration:none;border-bottom:1px solid var(--line-gold);padding-bottom:3px}
+.links-row a:hover{color:var(--gold);border-color:var(--gold)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px}
+@media (max-width:980px){.grid{grid-template-columns:1fr 1fr}}
+@media (max-width:640px){.grid{grid-template-columns:1fr}}
+.exp{border:1px solid var(--line);background:var(--obsidian);padding:24px;display:grid;gap:12px;align-content:start;position:relative;transform-style:preserve-3d;transition:border-color .35s,transform .35s cubic-bezier(.2,.7,.1,1);will-change:transform}
+.exp:hover{border-color:var(--line-gold)}
+.exp .top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.exp .code{font:500 11px/1 var(--mono);letter-spacing:.2em;color:var(--dim)}
+.exp h3{font:500 25px/1.1 var(--display);letter-spacing:.08em;margin:0}
+.exp p{margin:0;color:var(--muted);font-size:15px}
+.exp .foot{margin-top:6px}
+.status{font:500 10.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;display:inline-flex;align-items:center;gap:7px;color:var(--champagne)}
+.status::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px var(--gold)}
+.status.dev::before{background:transparent;border:1px solid var(--gold);box-shadow:none}
+
+/* ---------------- FOUNDER ---------------- */
+.founder{display:grid;grid-template-columns:.8fr 1.2fr;gap:clamp(28px,5vw,70px);align-items:start}
+@media (max-width:860px){.founder{grid-template-columns:1fr}}
+.medal{aspect-ratio:1;max-width:100%;border:1px solid var(--line-gold);display:grid;place-items:center;position:relative;background:radial-gradient(circle at 50% 45%,rgba(212,175,55,.14),rgba(5,5,6,0) 62%)}
+.medal canvas{width:100%;height:100%;display:block}
+.medal .init{position:absolute;font:600 clamp(60px,9vw,110px)/1 var(--display);letter-spacing:.08em}
+.medal .ring{position:absolute;inset:8%;border:1px solid rgba(212,175,55,.2);border-radius:50%}
+.bio p{color:var(--muted);max-width:62ch;margin:0 0 16px}
+.bio p b{color:var(--ivory);font-weight:500}
+.ledger{display:grid;grid-template-columns:repeat(2,1fr);border-top:1px solid var(--line);margin-top:26px}
+.ledger div{padding:16px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:16px;align-items:baseline}
+.ledger div:nth-child(odd){padding-right:18px;border-right:1px solid var(--line)}
+.ledger div:nth-child(even){padding-left:18px}
+@media (max-width:560px){.ledger{grid-template-columns:1fr}.ledger div:nth-child(odd){border-right:0;padding-right:0}.ledger div:nth-child(even){padding-left:0}}
+.ledger span{font:500 11px/1.3 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.ledger b{font:500 15px/1.3 var(--display);letter-spacing:.06em;color:var(--champagne);text-align:right}
+
+/* ---------------- CONTACT ---------------- */
+.contact{display:grid;grid-template-columns:.85fr 1.15fr;gap:clamp(24px,4vw,56px)}
+@media (max-width:900px){.contact{grid-template-columns:1fr}}
+.direct{display:grid;gap:10px;align-content:start}
+.direct a{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:16px 18px;border:1px solid var(--line);text-decoration:none;background:var(--obsidian);transition:border-color .3s;overflow-wrap:anywhere}
+.direct a:hover{border-color:var(--gold)}
+.direct a span{font:500 10.5px/1 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+form.letter{border:1px solid var(--line-gold);background:linear-gradient(160deg,rgba(212,175,55,.07),rgba(12,12,15,1) 45%);padding:clamp(22px,3.4vw,40px);display:grid;gap:18px;position:relative}
+.letter h3{font:500 26px/1.15 var(--display);letter-spacing:.08em;margin:0}
+.field{display:grid;gap:8px}
+.field label{font:500 11px/1 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.field input,.field textarea,.field select{width:100%;background:transparent;border:0;border-bottom:1px solid var(--line);padding:10px 0;color:var(--ivory);font-size:16px;border-radius:0;transition:border-color .3s}
+.field select{background:var(--obsidian)}
+.field textarea{min-height:130px;resize:vertical;line-height:1.6}
+.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-bottom-color:var(--gold)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:560px){.two{grid-template-columns:1fr}}
+.roles{display:flex;flex-wrap:wrap;gap:8px}
+.role{padding:10px 14px;border:1px solid var(--line);background:transparent;cursor:pointer;font:500 11.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--muted);transition:all .25s}
+.role:hover{color:var(--champagne)}
+.role[aria-pressed="true"]{border-color:var(--gold);color:#0b0b0d;background:var(--metal);background-size:200% 100%}
+.msg{font-size:14px;min-height:1.4em;margin:0}
+.msg .ok{color:var(--champagne)} .msg .no{color:#E88C7A}
+footer{border-top:1px solid var(--line);padding-block:26px calc(26px + env(safe-area-inset-bottom,0px))}
+footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font:400 11.5px/1.6 var(--mono);letter-spacing:.12em;color:var(--dim);text-transform:uppercase}
+footer a{color:var(--muted);text-decoration:none}
+
+/* ---------------- transition veil ---------------- */
+#veil{position:fixed;inset:0;z-index:60;pointer-events:none;visibility:hidden;background:#07070a;clip-path:polygon(0 100%,25% 100%,50% 100%,75% 100%,100% 100%,100% 100%,0 100%)}
+#veil canvas{position:absolute;inset:0;width:100%;height:100%}
+#veil .v-in{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+#veil .v-alt{font:600 clamp(56px,11vw,150px)/1 var(--display);letter-spacing:.06em;font-variant-numeric:tabular-nums}
+#veil .v-alt small{font-size:.28em;letter-spacing:.2em;margin-left:.2em;vertical-align:.9em}
+#veil .v-lat{font:500 clamp(13px,1.6vw,18px)/1 var(--display);letter-spacing:.6em;color:var(--gold);margin-top:18px}
+#veil .v-sub{font:400 11px/1 var(--mono);letter-spacing:.3em;color:var(--muted);margin-top:14px;text-transform:uppercase}
+
+/* ---------------- app UI (directory, forms, dashboard) ---------------- */
+.filterbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin:34px 0 4px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.filters{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.fchip{padding:9px 13px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;font:500 11px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;transition:all .25s}
+.fchip:hover{color:var(--champagne)}
+.fchip[aria-pressed="true"]{border-color:var(--gold);color:#0b0b0d;background:var(--metal);background-size:200% 100%}
+.search{border:1px solid var(--line);background:var(--obsidian);padding:10px 14px;color:var(--ivory);min-width:190px;font-size:14px}
+.search:focus{outline:none;border-color:var(--gold)}
+.badge{font:500 10px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;padding:6px 8px;border:1px solid var(--line);color:var(--muted)}
+.badge.stage{border-color:var(--line-gold);color:var(--gold)}
+.badge.need{background:rgba(212,175,55,.08);border-color:transparent;color:var(--champagne)}
+.count{font:500 11px/1 var(--mono);letter-spacing:.12em;color:var(--muted)}
+.empty{border:1px dashed var(--line);padding:38px 24px;text-align:center;color:var(--muted);display:grid;gap:14px;justify-items:center}
+.empty b{font:500 20px/1.2 var(--display);letter-spacing:.06em;color:var(--ivory)}
+.panel{border:1px solid var(--line);background:var(--obsidian);padding:clamp(20px,3vw,32px);display:grid;gap:18px;align-content:start}
+.panel h3{font:500 22px/1.2 var(--display);letter-spacing:.07em;margin:0}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:700px){.form-grid{grid-template-columns:1fr}}
+.form-grid .full{grid-column:1/-1}
+.hint{font:400 12px/1.5 var(--mono);color:var(--dim);letter-spacing:.04em}
+.build-cols{display:grid;grid-template-columns:1.25fr .75fr;gap:22px;align-items:start}
+@media (max-width:900px){.build-cols{grid-template-columns:1fr}}
+.score{display:grid;gap:14px}
+.score .ring{display:flex;align-items:baseline;gap:10px}
+.score .ring b{font:600 46px/1 var(--display);letter-spacing:.04em}
+.score .ring span{font:500 11px/1 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.checks{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.checks li{display:grid;grid-template-columns:auto 1fr;gap:10px;font-size:14px;color:var(--muted);align-items:start}
+.checks li b{color:var(--ivory);font-weight:500;display:block}
+.checks .dot{width:9px;height:9px;margin-top:6px;border:1px solid var(--gold);transform:rotate(45deg)}
+.checks .pass .dot{background:var(--gold)}
+.meter{height:2px;background:var(--line);position:relative;overflow:hidden}
+.meter i{position:absolute;inset:0 auto 0 0;background:var(--metal);background-size:200% 100%;transition:width .6s cubic-bezier(.7,0,.2,1)}
+.proj-hero{display:grid;grid-template-columns:1.15fr .85fr;gap:clamp(22px,4vw,48px);align-items:start}
+@media (max-width:900px){.proj-hero{grid-template-columns:1fr}}
+.kv{display:grid;gap:0;border-top:1px solid var(--line)}
+.kv div{display:flex;justify-content:space-between;gap:16px;padding:13px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.kv span{font:500 10.5px/1.3 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.kv b{font:500 14px/1.3 var(--display);letter-spacing:.05em;color:var(--champagne);text-align:right}
+.rows{display:grid;gap:12px}
+.row-item{border:1px solid var(--line);background:var(--obsidian);padding:16px 18px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+.row-item p{margin:4px 0 0;color:var(--muted);font-size:14px}
+.row-item b{font:500 16px/1.2 var(--display);letter-spacing:.05em}
+@media (max-width:620px){.row-item{grid-template-columns:1fr}}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn.sm{padding:9px 14px;font-size:11px;letter-spacing:.16em}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(16px);z-index:70;background:#0F0F13;border:1px solid var(--line-gold);padding:14px 20px;font:500 12px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--champagne);opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;max-width:90vw;text-align:center}
+.toast.on{opacity:1;transform:translateX(-50%)}
+.mode{font:500 10px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--dim);border:1px solid var(--line);padding:6px 8px}
+.stack-links{display:flex;flex-wrap:wrap;gap:8px 18px}
+</style>
+</head>
+<body>
+
+
+<header class="nav">
+  <div class="wrap">
+    <a class="logo" href="#/" aria-label="Apex home">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFF3C4"/><stop offset=".45" stop-color="#D4AF37"/><stop offset="1" stop-color="#8A6A22"/></linearGradient></defs><path d="M16 3 30 28H2Z" fill="none" stroke="url(#lg)" stroke-width="1.6"/><path d="M16 3 21 12l-3-1.6L16 13l-2-2.6-3 1.6Z" fill="url(#lg)"/><circle cx="16" cy="3" r="1.6" fill="#FFF3C4"/></svg>
+      <b class="metal">APEX</b>
+    </a>
+    <button class="burger" id="burger" aria-expanded="false" aria-controls="links">Menu</button>
+    <ul class="links" id="links">
+      <li><a href="#/" data-nav="summit"><i>I</i>Summit</a></li>
+      <li><a href="#/ascent" data-nav="ascent"><i>II</i>The Ascent</a></li>
+      <li><a href="#/expeditions" data-nav="expeditions"><i>III</i>Expeditions</a></li>
+      <li><a href="#/post" data-nav="post"><i>IV</i>Post</a></li>
+      <li><a href="#/founder" data-nav="founder"><i>V</i>Founder</a></li>
+      <li><a href="#/dashboard" data-nav="dashboard" id="nav-acct"><i>VI</i>Sign in</a></li>
+      <li><a href="#/contact" data-nav="contact" class="cta">Contact</a></li>
+    </ul>
+  </div>
+</header>
+
+<div class="alt" aria-hidden="true"><span class="num" id="alt-num">8,849 M</span><div class="bar"><span class="tick" id="alt-tick" style="top:0"></span></div><span class="lab" id="alt-lab">Summit</span></div>
+
+<main id="main">
+
+<!-- ================= I · SUMMIT ================= -->
+<section class="page" id="p-summit" data-page="summit">
+  <canvas id="everest" aria-label="Mount Everest at night, lit in gold, with the summit marked as the apex"></canvas>
+  <div class="summit-ui wrap">
+    <div class="hero">
+      <span class="motto rv">PER ARDVA AD SVMMVM</span>
+      <h1 class="word metal rv">APEX</h1>
+      <p class="slogan rv">You built it. <em>We'll help you summit.</em></p>
+      <p class="translate rv">"Through hardship, to the summit." Apex is where builders take a working project to users, a pitch and the investors who back it.</p>
+      <div class="btns rv" style="margin-top:10px">
+        <a class="btn solid" href="#/ascent">Begin the ascent <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
+        <a class="btn" href="#/expeditions">See the expeditions</a>
+      </div>
+    </div>
+    <div class="hud">
+      <div class="coords">
+        <div>Summit<b>8,848.86 m</b></div>
+        <div>Latitude<b>27.9881° N</b></div>
+        <div>Longitude<b>86.9250° E</b></div>
+      </div>
+      <a class="scrollcue" href="#/ascent"><span></span>Ubi opus finitur, ascensus incipit</a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= II · ASCENT ================= -->
+<section class="page" id="p-ascent" data-page="ascent" hidden>
+  <canvas class="bgtopo" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <div class="head-row">
+      <div>
+        <span class="eyebrow rv">II · Ascensus · Base Camp 5,364 m</span>
+        <h2 class="h-page rv">The route from <span class="metal">built</span> to <span class="metal">backed</span>.</h2>
+      </div>
+      <p class="lede rv">Every hackathon ends the same way. Hundreds of working products, a demo day, and then silence. <b>The builders aren't short on skill. They're short on a next step.</b> Apex is that step.</p>
+    </div>
+
+    <div class="wall rv">
+      <span class="q metal">“Now what?”</span>
+      <p>The wall every builder hits after the demo: no users, no pitch, no idea who invests in what. Showcases stop at the gallery. Investor platforms assume you already have a company. Apex covers the climb in between, for software and hardware alike.</p>
+    </div>
+
+    <div class="rule"></div>
+
+    <div class="camps">
+      <article class="camp rv">
+        <div class="elev"><span>Camp I · Base</span><b>≈ 5,364 m</b></div>
+        <span class="rn metal">I</span>
+        <h3>Post</h3>
+        <p>Put the build where it can be seen.</p>
+        <ul><li>Demo link, video, code or hardware photos</li><li>What it does, who it's for, what you need next</li><li>A shareable project page in minutes</li></ul>
+      </article>
+      <article class="camp rv">
+        <div class="elev"><span>Camp II · Western Cwm</span><b>≈ 6,400 m</b></div>
+        <span class="rn metal">II</span>
+        <h3>Prove</h3>
+        <p>Turn a demo into evidence.</p>
+        <ul><li>AI feedback on your pitch and deck</li><li>Early users and waitlists tracked in one place</li><li>See who viewed your project, and when</li></ul>
+      </article>
+      <article class="camp rv">
+        <div class="elev"><span>Summit</span><b>8,849 m</b></div>
+        <span class="rn metal">III</span>
+        <h3>Pitch</h3>
+        <p>Reach the people who back builders.</p>
+        <ul><li>Investors and mentors browse by field and traction</li><li>Request intros directly from your project page</li><li>Hardware and software, side by side</li></ul>
+      </article>
+    </div>
+
+    <div class="rule"></div>
+
+    <div class="sides">
+      <div class="side rv"><span class="eyebrow">For builders</span><h3>Climb with a map</h3><p>Students, hackers, researchers and makers post projects free. Pro tools cover the pitch, the analytics and the introductions.</p><span class="price">Free · Pro planned</span></div>
+      <div class="side rv"><span class="eyebrow">For investors</span><h3>See the climb early</h3><p>Curated deal flow from builders with working products, filtered by field, stage and traction, before anyone else finds them.</p><span class="price">Private beta access</span></div>
+    </div>
+
+    <div class="btns rv" style="margin-top:40px"><a class="btn solid" href="#/contact">Join the private beta</a><a class="btn" href="#/expeditions">See what's been built</a></div>
+  </div>
+</section>
+
+<!-- ================= III · EXPEDITIONS ================= -->
+<section class="page" id="p-expeditions" data-page="expeditions" hidden>
+  <canvas class="bgtopo" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <div class="head-row">
+      <div>
+        <span class="eyebrow rv">III · Expeditiones · Camp II ≈ 6,400 m</span>
+        <h2 class="h-page rv">Expeditions <span class="metal">already climbed</span>.</h2>
+      </div>
+      <p class="lede rv">Apex's first listings are its own. Each one is a real build that hit the same wall, and each one will be first up the route.</p>
+    </div>
+
+    <article class="flag rv">
+      <div class="flag-art"><canvas id="holo" aria-label="Gold hologram cycling through LiftOff's six vehicles"></canvas></div>
+      <div class="flag-body">
+        <div class="meta"><span class="chip g">Flagship</span><span class="chip">HackMIT 2026</span><span class="chip">Education</span></div>
+        <h3 class="metal">LiftOff</h3>
+        <p class="tagline">Build anything that flies, drives, sails or dives. <em>Then let physics judge it.</em></p>
+        <p class="lede" style="font-size:15.5px">An aerodynamics lab for rockets, race cars, aircraft, drones, boats and submarines, tested on Earth, Mars, Titan, Venus and the Moon with the same models engineers use.</p>
+        <div class="figs"><div><b>6</b><span>vehicle bays</span></div><div><b>5</b><span>worlds</span></div><div><b>9</b><span>sponsor techs</span></div><div><b>~3%</b><span>prediction error</span></div></div>
+        <div class="links-row">
+          <a href="https://abhiramnimmala.github.io/Lift_Off/" target="_blank" rel="noopener">Launch ↗</a>
+          <a href="https://youtu.be/QlAZ29NOulA" target="_blank" rel="noopener">Video ↗</a>
+          <a href="https://claude.ai/artifact/Kf7uKTxcnfSDWAeWn76eW4" target="_blank" rel="noopener">Pitch deck ↗</a>
+          <a href="https://github.com/AbhiramNimmala/Lift_Off" target="_blank" rel="noopener">Code ↗</a>
+        </div>
+      </div>
+    </article>
+
+    <div class="filterbar rv">
+      <div class="filters" role="group" aria-label="Filter projects">
+        <button class="fchip" id="fc-all" data-f="all" aria-pressed="true">All</button>
+        <button class="fchip" id="fc-aero" data-f="Aerospace" aria-pressed="false">Aerospace</button>
+        <button class="fchip" id="fc-ai" data-f="AI" aria-pressed="false">AI</button>
+        <button class="fchip" id="fc-health" data-f="Health" aria-pressed="false">Health</button>
+        <button class="fchip" id="fc-fin" data-f="Fintech" aria-pressed="false">Fintech</button>
+        <button class="fchip" id="fc-hw" data-f="Hardware" aria-pressed="false">Hardware</button>
+      </div>
+      <div class="filters">
+        <input class="search" id="dir-q" type="text" placeholder="Search expeditions" aria-label="Search projects">
+        <a class="btn sm" href="#/post">Post yours</a>
+      </div>
+    </div>
+    <div class="grid" id="dir"></div>
+  </div>
+</section>
+
+<!-- ================= IV · FOUNDER ================= -->
+<section class="page" id="p-founder" data-page="founder" hidden>
+  <canvas class="bgtopo" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <span class="eyebrow rv">IV · Conditor · Camp III ≈ 7,160 m</span>
+    <h2 class="h-page rv" style="margin-bottom:clamp(36px,5vw,60px)">Built by a builder <span class="metal">who hit the wall</span>.</h2>
+    <div class="founder">
+      <div class="medal rv"><canvas id="medal" aria-hidden="true"></canvas><span class="ring"></span><span class="init metal">AN</span></div>
+      <div class="bio rv">
+        <p><b>Abhiram Nimmala</b> is the founder of Apex, and a computer science and aerospace student at Rutgers University–New Brunswick, from Cumming, Georgia.</p>
+        <p>In 2026 he built Scribe solo at the UC Berkeley AI Hackathon, LiftOff at HackMIT, and a 6-DOF rocket flight simulator from scratch, and he competes next at HackGT and NASA Space Apps. Every time, the build worked, and every time the question after demo day was the same: <b>now what?</b> Apex is his answer.</p>
+        <p>He's on the manufacturing and aerospace subteam of Rutgers Formula Racing, founded the nonprofit OneWorldOneMouth to feed families in Cumming, and coached basketball for more than 400 kids.</p>
+        <div class="btns" style="margin-top:22px"><a class="btn" href="https://www.linkedin.com/in/abhiram-nimmala-882787330/" target="_blank" rel="noopener">LinkedIn ↗</a><a class="btn" href="https://github.com/AbhiramNimmala" target="_blank" rel="noopener">GitHub ↗</a></div>
+        <div class="ledger">
+          <div><span>Hackathons · 2026</span><b>Berkeley · MIT · GT</b></div>
+          <div><span>HackMIT</span><b>Passport Challenge</b></div>
+          <div><span>Products shipped</span><b>5</b></div>
+          <div><span>Youth coached</span><b>400+</b></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= V · CONTACT ================= -->
+<section class="page" id="p-contact" data-page="contact" hidden>
+  <canvas class="bgtopo" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <div class="head-row">
+      <div>
+        <span class="eyebrow rv">V · Scribe nobis · South Col ≈ 7,906 m</span>
+        <h2 class="h-page rv">Write to <span class="metal">the summit</span>.</h2>
+      </div>
+      <p class="lede rv">Building something? Investing in builders? Want to partner? Send a note and it goes straight to the founder.</p>
+    </div>
+    <div class="contact">
+      <div class="direct rv">
+        <a href="mailto:abhiramnimmala3@gmail.com">abhiramnimmala3@gmail.com <span>Email</span></a>
+        <a href="https://www.linkedin.com/in/abhiram-nimmala-882787330/" target="_blank" rel="noopener">LinkedIn <span>Profile ↗</span></a>
+        <a href="https://github.com/AbhiramNimmala" target="_blank" rel="noopener">GitHub <span>Code ↗</span></a>
+        <p class="translate" style="margin-top:14px">Based in Atlanta, Georgia and New Brunswick, New Jersey.</p>
+      </div>
+      <form class="letter rv" id="letter" novalidate>
+        <div><span class="eyebrow">Epistula</span><h3 style="margin-top:10px">Send a message</h3></div>
+        <div class="field"><label>I'm reaching out to</label>
+          <div class="roles" role="group" aria-label="Reason">
+            <button type="button" class="role" id="r-post" data-r="Post my project" aria-pressed="true">Post my project</button>
+            <button type="button" class="role" id="r-invest" data-r="Investor access" aria-pressed="false">Investor access</button>
+            <button type="button" class="role" id="r-partner" data-r="Partnership" aria-pressed="false">Partner</button>
+            <button type="button" class="role" id="r-q" data-r="Project question" aria-pressed="false">Ask a question</button>
+          </div></div>
+        <div class="two">
+          <div class="field"><label for="f-name">Name</label><input id="f-name" type="text" autocomplete="name" required></div>
+          <div class="field"><label for="f-email">Email</label><input id="f-email" type="email" autocomplete="email" required></div>
+        </div>
+        <div class="field"><label for="f-link">Project or company link (optional)</label><input id="f-link" type="text" placeholder="https://"></div>
+        <div class="field"><label for="f-msg">Message</label><textarea id="f-msg" required placeholder="What are you building, backing or proposing?"></textarea></div>
+        <div class="btns"><button type="submit" class="btn solid">Send message</button><button type="button" class="btn" id="f-copy">Copy message</button></div>
+        <p class="msg" id="f-status" role="status"></p>
+      </form>
+    </div>
+  </div>
+</section>
+
+
+<!-- ================= POST A PROJECT ================= -->
+<section class="page" id="p-post" data-page="post" hidden>
+  <canvas class="bgtopo" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <div class="head-row">
+      <div><span class="eyebrow rv">Camp I · Post · Base Camp 5,364 m</span><h2 class="h-page rv">Put your build <span class="metal">on the route</span>.</h2></div>
+      <p class="lede rv">Two minutes. A working demo beats a polished idea, and the last field is the one that matters: <b>what you need next</b>.</p>
+    </div>
+    <div class="build-cols">
+      <form class="panel rv" id="post-form" novalidate>
+        <div class="form-grid">
+          <div class="field"><label for="p-title">Project name</label><input id="p-title" type="text" required></div>
+          <div class="field"><label for="p-cat">Category</label><select id="p-cat"><option>Aerospace</option><option>AI</option><option>Health</option><option>Fintech</option><option>Hardware</option><option>Software</option><option>Climate</option><option>Other</option></select></div>
+          <div class="field full"><label for="p-pitch">One line (what it does)</label><input id="p-pitch" type="text" maxlength="110" required placeholder="Turns a live doctor–patient visit into a clinical note in real time."></div>
+          <div class="field"><label for="p-stage">Stage</label><select id="p-stage"><option value="prototype">Prototype</option><option value="live">Live &amp; public</option><option value="users">Has users</option><option value="revenue">Has revenue</option></select></div>
+          <div class="field"><label for="p-need">What you need next</label><select id="p-need"><option value="users">First users</option><option value="cofounder">A cofounder</option><option value="funding">Funding</option><option value="parts">Hardware / parts</option><option value="advice">Advice &amp; mentors</option></select></div>
+          <div class="field"><label for="p-demo">Demo link</label><input id="p-demo" type="text" placeholder="https://"></div>
+          <div class="field"><label for="p-repo">Code link</label><input id="p-repo" type="text" placeholder="https://github.com/"></div>
+          <div class="field"><label for="p-video">Video link</label><input id="p-video" type="text" placeholder="https://"></div>
+          <div class="field"><label for="p-stack">Built with (comma separated)</label><input id="p-stack" type="text" placeholder="Python, Supabase, Three.js"></div>
+          <div class="field full"><label for="p-desc">The story: what it does, who it's for, what you learned</label><textarea id="p-desc" required></textarea></div>
+          <div class="field full"><label for="p-traction">Traction, if any</label><input id="p-traction" type="text" placeholder="120 sign-ups in two weeks"></div>
+        </div>
+        <div class="btns"><button type="submit" class="btn solid">Publish project</button><span class="hint" id="post-hint">You'll need an account, so we can send intro requests to you.</span></div>
+        <p class="msg" id="post-status" role="status"></p>
+      </form>
+      <aside class="panel score rv">
+        <div><span class="eyebrow">Pitch check</span><div class="ring"><b class="metal" id="sc-num">0</b><span>/ 100</span></div><div class="meter"><i id="sc-bar" style="width:0%"></i></div></div>
+        <ul class="checks" id="sc-list"></ul>
+        <p class="hint">Scored live against what investors look for first. Nothing is sent anywhere until you publish.</p>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PROJECT PAGE ================= -->
+<section class="page" id="p-project" data-page="project" hidden>
+  <canvas class="bgtopo" aria-hidden="true"></canvas>
+  <div class="wrap"><a class="crumb" href="#/expeditions" style="font:400 12px/1 var(--mono);letter-spacing:.14em;color:var(--muted);text-decoration:none">← All expeditions</a><div id="proj-view"></div></div>
+</section>
+
+<!-- ================= DASHBOARD ================= -->
+<section class="page" id="p-dashboard" data-page="dashboard" hidden>
+  <canvas class="bgtopo" aria-hidden="true"></canvas>
+  <div class="wrap"><div id="dash"></div></div>
+</section>
+
+<!-- ================= INVESTORS ================= -->
+<section class="page" id="p-investors" data-page="investors" hidden>
+  <canvas class="bgtopo" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <div class="head-row">
+      <div><span class="eyebrow rv">Investors · South Col ≈ 7,906 m</span><h2 class="h-page rv">See the climb <span class="metal">early</span>.</h2></div>
+      <p class="lede rv">Apex is where student and independent builders post working products before they look like companies. Access is reviewed by hand, so the deal flow stays worth reading.</p>
+    </div>
+    <div class="build-cols">
+      <form class="panel rv" id="inv-form" novalidate>
+        <h3>Request access</h3>
+        <div class="form-grid">
+          <div class="field"><label for="i-name2">Name</label><input id="i-name2" type="text" required></div>
+          <div class="field"><label for="i-email2">Email</label><input id="i-email2" type="email" required></div>
+          <div class="field"><label for="i-firm">Firm or fund</label><input id="i-firm" type="text" placeholder="Angel, fund, accelerator"></div>
+          <div class="field"><label for="i-link">Website or LinkedIn</label><input id="i-link" type="text" placeholder="https://"></div>
+          <div class="field full"><label for="i-focus">What do you back?</label><textarea id="i-focus" required placeholder="Pre-seed hardware and aerospace, checks of $25–100k, US only."></textarea></div>
+        </div>
+        <div class="btns"><button type="submit" class="btn solid">Request access</button></div>
+        <p class="msg" id="inv-status" role="status"></p>
+      </form>
+      <aside class="panel rv">
+        <h3>What you get</h3>
+        <ul class="checks">
+          <li class="pass"><span class="dot"></span><div><b>Working products only</b>Every listing has a demo link or a video.</div></li>
+          <li class="pass"><span class="dot"></span><div><b>Filtered by need</b>See who wants funding, a cofounder or first users.</div></li>
+          <li class="pass"><span class="dot"></span><div><b>Direct intros</b>Request an intro from any project page; the builder gets it immediately.</div></li>
+        </ul>
+        <p class="hint">Free during the private beta.</p>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ADMIN ================= -->
+<section class="page" id="p-admin" data-page="admin" hidden>
+  <canvas class="bgtopo" aria-hidden="true"></canvas>
+  <div class="wrap"><span class="eyebrow rv">Base camp control</span><h2 class="h-page rv">Admin</h2><div id="admin-view"></div></div>
+</section>
+
+<!-- ================= SIGN IN ================= -->
+<section class="page" id="p-signin" data-page="signin" hidden>
+  <canvas class="bgtopo" aria-hidden="true"></canvas>
+  <div class="wrap" style="max-width:560px">
+    <span class="eyebrow rv">Account</span>
+    <h2 class="h-page rv">Join the <span class="metal">ascent</span>.</h2>
+    <div class="panel rv">
+      <button class="btn solid" id="sso-google" style="justify-content:center">Continue with Google</button>
+      <div class="hint" style="text-align:center">or</div>
+      <form id="magic-form" novalidate style="display:grid;gap:14px">
+        <div class="field"><label for="m-email">Email</label><input id="m-email" type="email" required placeholder="you@school.edu"></div>
+        <button type="submit" class="btn">Send me a sign-in link</button>
+      </form>
+      <p class="msg" id="auth-status" role="status"></p>
+      <p class="hint">Builders post projects. Investors <a href="#/investors" style="color:var(--gold)">request access</a>.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer><div class="wrap"><span>© 2026 Apex Technologies · Per ardua ad summum</span><span><a href="mailto:abhiramnimmala3@gmail.com">abhiramnimmala3@gmail.com</a></span></div></footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div id="veil" aria-hidden="true"><canvas id="veil-cv"></canvas><div class="v-in"><div><div class="v-alt metal" id="v-alt">5,364<small>M</small></div><div class="v-lat" id="v-lat">ASCENSVS</div><div class="v-sub" id="v-sub">Base Camp</div></div></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+/* ============ CONFIG ============
+   FORM_ENDPOINT: leave "" to send by email.
+   On your own domain, paste a Formspree (or similar) URL
+   to collect messages and beta sign-ups directly.            */
+const EMAIL="abhiramnimmala3@gmail.com";
+const FORM_ENDPOINT="";
+
+const PAGES={
+  summit:{alt:8849,lat:"AD SVMMVM",sub:"The Apex",label:"Summit"},
+  ascent:{alt:5364,lat:"ASCENSVS",sub:"Base Camp",label:"Base Camp"},
+  expeditions:{alt:6400,lat:"EXPEDITIONES",sub:"Camp II",label:"Camp II"},
+  post:{alt:5364,lat:"INCIPE",sub:"Base Camp",label:"Post"},
+  project:{alt:6800,lat:"EXPEDITIO",sub:"On the route",label:"Project"},
+  dashboard:{alt:7160,lat:"STATIO TVA",sub:"Your camp",label:"Dashboard"},
+  investors:{alt:7906,lat:"SOCII",sub:"South Col",label:"Investors"},
+  admin:{alt:7160,lat:"PRAEFECTVS",sub:"Control",label:"Admin"},
+  signin:{alt:5364,lat:"INTROITVS",sub:"Base Camp",label:"Sign in"},
+  founder:{alt:7160,lat:"CONDITOR",sub:"Camp III",label:"Camp III"},
+  contact:{alt:7906,lat:"SCRIBE NOBIS",sub:"South Col",label:"South Col"}
+};
+/* Supabase — paste these after creating your project (Settings → API).
+   The anon key is safe in a browser; never paste the service_role key. */
+const SUPABASE_URL="";
+const SUPABASE_ANON_KEY="";
+const OWNER_EMAIL="abhiramnimmala3@gmail.com";
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const REDUCE=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const DPR=Math.min(window.devicePixelRatio||1,2);
+const fmt=n=>Math.round(n).toLocaleString("en-US");
+
+/* ================= Everest ================= */
+const Ev=(()=>{
+  const cv=$("#everest"),ctx=cv.getContext("2d");
+  let W,H,layers=[],stars=[],snow=[],mx=0,my=0,tx=0,ty=0,t0=performance.now(),peak={x:0,y:0};
+  function rnd(s){return()=>{s=(s*16807)%2147483647;return (s-1)/2147483646;};}
+  function noise1(r,n){n=Math.max(2,Math.round(n));const a=[];for(let i=0;i<n;i++)a.push(r()*2-1);return x=>{const u=Math.min(1,Math.max(0,(x+.25)/1.5)),f=u*(n-1),i=Math.min(Math.floor(f),n-2),k=f-i,s=k*k*(3-2*k);return a[i]*(1-s)+a[i+1]*s;};}
+  function ridge(seed,fn){const r=rnd(seed),o=[1,.5,.25,.12,.06].map((a,j)=>({a,f:noise1(r,6*Math.pow(2.1,j)+2)}));
+    return x=>fn(x)+o.reduce((s,q)=>s+q.a*q.f(x),0);}
+  function build(){
+    if(!cv.clientWidth||!cv.clientHeight)return false;
+    W=cv.clientWidth;H=cv.clientHeight;cv.width=W*DPR;cv.height=H*DPR;
+    const cx=W>760?.64:.7, base=H*.99;
+    peak={x:W*cx,y:H*(W>760?.30:.5)};
+    const defs=[
+      // far range
+      {seed:7,col:["#17140E","#0B0A08"],rim:.22,par:.012,fn:x=>H*.58-Math.sin(x*3.1)*H*.05,amp:H*.05},
+      // Everest massif: Nuptse (left), Everest, Lhotse (right)
+      {seed:21,col:["#2A2415","#0D0C09"],rim:1,par:.03,main:true,fn:x=>{
+        const px=x*W, e=Math.max(0,1-Math.abs(px-peak.x)/(W*.33));
+        const l=Math.max(0,1-Math.abs(px-(peak.x+W*.17))/(W*.16));
+        const n=Math.max(0,1-Math.abs(px-(peak.x-W*.2))/(W*.18));
+        const h=Math.max(Math.pow(e,1.25)*(base-peak.y),Math.pow(l,1.3)*(base-peak.y)*.8,Math.pow(n,1.4)*(base-peak.y)*.66);
+        return base-h-H*.06;},amp:H*.032},
+      // foreground ridges
+      {seed:44,col:["#110F0B","#060605"],rim:.35,par:.06,fn:x=>H*.83+Math.sin(x*5.2+1)*H*.04,amp:H*.05},
+      {seed:91,col:["#0A0908","#040404"],rim:.18,par:.1,fn:x=>H*.93+Math.sin(x*3.7+2)*H*.03,amp:H*.035}
+    ];
+    layers=defs.map(d=>{
+      const pad=80,w=W+pad*2,h=H,oc=document.createElement("canvas");oc.width=w*DPR;oc.height=h*DPR;const c=oc.getContext("2d");c.scale(DPR,DPR);
+      const f=ridge(d.seed,d.fn),pts=[];
+      for(let i=0;i<=w;i+=2){const x=(i-pad)/W;let y=f(x)+0;
+        if(d.main){y=d.fn(x)+(f(x)-d.fn(x))*d.amp; if(Math.abs(i-pad-peak.x)<3)y=Math.min(y,peak.y);} else y=d.fn(x)+(f(x)-d.fn(x))*d.amp;
+        pts.push([i,y]);}
+      if(d.main){let mi=0;pts.forEach((p,k)=>{if(p[1]<pts[mi][1])mi=k;});peak.y=pts[mi][1];peak.x=pts[mi][0]-pad;}
+      // body
+      const g=c.createLinearGradient(0,Math.min(...pts.map(p=>p[1])),0,h);g.addColorStop(0,d.col[0]);g.addColorStop(1,d.col[1]);
+      c.beginPath();c.moveTo(0,h);pts.forEach(p=>c.lineTo(p[0],p[1]));c.lineTo(w,h);c.closePath();c.fillStyle=g;c.fill();
+      // faceted light: slopes facing the light (left) catch gold
+      c.save();c.clip();
+      for(let k=1;k<pts.length;k++){const s=(pts[k][1]-pts[k-1][1])/2;const lit=Math.max(0,Math.min(1,-s*.9+.15));if(lit<.05)continue;
+        const len=(d.main?H*.34:H*.12)*(.5+lit);const gg=c.createLinearGradient(0,pts[k][1],0,pts[k][1]+len);
+        gg.addColorStop(0,`rgba(${d.main?"241,224,166":"212,175,55"},${(d.main?.34:.12)*lit*d.rim})`);gg.addColorStop(1,"rgba(212,175,55,0)");
+        c.fillStyle=gg;c.fillRect(pts[k][0]-1,pts[k][1],2.2,len);}
+      if(d.main){ // snow cap
+        const sc=c.createRadialGradient(peak.x+pad,peak.y,0,peak.x+pad,peak.y,H*.26);sc.addColorStop(0,"rgba(255,243,196,.22)");sc.addColorStop(1,"rgba(255,243,196,0)");c.fillStyle=sc;c.fillRect(0,0,w,h);}
+      c.restore();
+      // gold rim
+      c.lineWidth=d.main?1.6:1;c.strokeStyle=d.main?"#E9C766":"rgba(212,175,55,.55)";c.globalAlpha=d.rim;
+      if(d.main){c.shadowColor="#D4AF37";c.shadowBlur=14;}
+      c.beginPath();pts.forEach((p,k)=>k?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]));c.stroke();c.shadowBlur=0;c.globalAlpha=1;
+      return {oc,par:d.par,pad,main:!!d.main};
+    });
+    const r=rnd(3);stars=Array.from({length:Math.round(W*H/5200)},()=>[r()*W,r()*H*.7,r()*1.1+.2,r()*6.28]);
+    snow=Array.from({length:REDUCE?0:Math.round(W/12)},()=>[Math.random()*W,Math.random()*H,Math.random()*1.4+.3,Math.random()*.5+.2]);
+  }
+  function frame(now){
+    const t=(now-t0)/1000;tx+=(mx-tx)*.05;ty+=(my-ty)*.05;
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    const sky=ctx.createLinearGradient(0,0,0,H);sky.addColorStop(0,"#030304");sky.addColorStop(.55,"#0B0907");sky.addColorStop(1,"#15110A");ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
+    // moon glow behind summit
+    const mg=ctx.createRadialGradient(peak.x+W*.09,peak.y-H*.12,0,peak.x+W*.09,peak.y-H*.12,H*.55);mg.addColorStop(0,"rgba(241,224,166,.16)");mg.addColorStop(1,"rgba(241,224,166,0)");ctx.fillStyle=mg;ctx.fillRect(0,0,W,H);
+    for(const s of stars){ctx.globalAlpha=.25+.55*Math.abs(Math.sin(t*.5+s[3]));ctx.fillStyle="#F1E0A6";ctx.fillRect(s[0]-tx*6,s[1]-ty*4,s[2],s[2]);}
+    ctx.globalAlpha=1;
+    let pOff=[0,0];
+    layers.forEach(L=>{const ox=-L.pad-tx*L.par*W,oy=-ty*L.par*H*.5;if(L.main)pOff=[ox+L.pad,oy];ctx.drawImage(L.oc,ox,oy,L.oc.width/DPR,L.oc.height/DPR);});
+    // summit beacon
+    const bx=peak.x+pOff[0],by=peak.y+pOff[1],pulse=REDUCE?.6:.5+.5*Math.sin(t*2.2);
+    const bg=ctx.createRadialGradient(bx,by,0,bx,by,40+pulse*26);bg.addColorStop(0,"rgba(255,243,196,.85)");bg.addColorStop(.25,"rgba(212,175,55,.35)");bg.addColorStop(1,"rgba(212,175,55,0)");
+    ctx.fillStyle=bg;ctx.beginPath();ctx.arc(bx,by,70,0,7);ctx.fill();
+    ctx.fillStyle="#FFF3C4";ctx.beginPath();ctx.arc(bx,by,2.6,0,7);ctx.fill();
+    ctx.strokeStyle=`rgba(212,175,55,${.35+.4*(1-pulse)})`;ctx.lineWidth=1;ctx.beginPath();ctx.arc(bx,by,10+pulse*16,0,7);ctx.stroke();
+    // label line
+    const dir=bx+230>W?-1:1,lx=bx+dir*46,ex=bx+dir*200;
+    ctx.strokeStyle="rgba(212,175,55,.6)";ctx.beginPath();ctx.moveTo(bx+dir*6,by-6);ctx.lineTo(lx,by-46);ctx.lineTo(ex,by-46);ctx.stroke();
+    ctx.fillStyle="#F1E0A6";ctx.font="500 11px 'IBM Plex Mono', monospace";ctx.textAlign=dir>0?"left":"right";ctx.fillText("APEX · 8,848.86 M",lx+dir*6,by-54);
+    ctx.fillStyle="rgba(142,136,120,.95)";ctx.fillText("SAGARMATHA · CHOMOLUNGMA",lx+dir*6,by-32);
+    // snow
+    ctx.fillStyle="rgba(241,224,166,.55)";
+    for(const s of snow){s[1]+=s[3];s[0]+=Math.sin(t+s[1]*.01)*.3-.15;if(s[1]>H){s[1]=-4;s[0]=Math.random()*W;}ctx.fillRect(s[0],s[1],s[2],s[2]);}
+    // vignette
+    const v=ctx.createRadialGradient(W*.5,H*.5,H*.3,W*.5,H*.5,H*.95);v.addColorStop(0,"rgba(0,0,0,0)");v.addColorStop(1,"rgba(0,0,0,.6)");ctx.fillStyle=v;ctx.fillRect(0,0,W,H);
+    // left scrim so type stays readable
+    if(W>760){const lg=ctx.createLinearGradient(0,0,W*.6,0);lg.addColorStop(0,"rgba(5,5,6,.78)");lg.addColorStop(1,"rgba(5,5,6,0)");ctx.fillStyle=lg;ctx.fillRect(0,0,W,H);}
+    else{const lg=ctx.createLinearGradient(0,0,0,H*.62);lg.addColorStop(0,"rgba(5,5,6,.82)");lg.addColorStop(.75,"rgba(5,5,6,.55)");lg.addColorStop(1,"rgba(5,5,6,0)");ctx.fillStyle=lg;ctx.fillRect(0,0,W,H);}
+  }
+  let raf=0,running=false;
+  function loop(n){frame(n);if(running&&!REDUCE)raf=requestAnimationFrame(loop);}
+  addEventListener("pointermove",e=>{mx=e.clientX/innerWidth-.5;my=e.clientY/innerHeight-.5;});
+  addEventListener("resize",()=>{if(running&&build()!==false)frame(performance.now());});
+  build();
+  return {start(){if(running)return;if(cv.clientWidth!==W||cv.clientHeight!==H||!layers.length){if(build()===false)return;}running=true;frame(performance.now());if(!REDUCE)raf=requestAnimationFrame(loop);},stop(){running=false;cancelAnimationFrame(raf);}};
+})();
+
+/* ================= topographic backgrounds ================= */
+function topo(cv,seed,alpha){
+  const W=cv.clientWidth,H=cv.clientHeight;if(!W||!H)return;cv.width=W*DPR;cv.height=H*DPR;const c=cv.getContext("2d");c.scale(DPR,DPR);
+  const cxs=[[.78,.2],[.15,.75],[.62,.9]].map(([a,b],i)=>[a*W+(seed*37%50),b*H]);
+  const f=(x,y)=>cxs.reduce((s,[a,b],i)=>s+Math.exp(-(((x-a)**2)+((y-b)**2))/(2*(W*(.18+i*.05))**2))*(1-i*.2),0)+Math.sin(x*.004+seed)*.06+Math.cos(y*.005)*.05;
+  c.lineWidth=1;
+  for(let lv=0;lv<14;lv++){const th=.08+lv*.065;c.strokeStyle=`rgba(212,175,55,${alpha*(lv%5===0?1:.45)})`;c.beginPath();
+    const step=14;for(let y=0;y<H;y+=step)for(let x=0;x<W;x+=step){const a=f(x,y)>th,b=f(x+step,y)>th,d=f(x,y+step)>th;if(a!==b){c.moveTo(x+step/2,y);c.lineTo(x+step/2,y+1.2);}if(a!==d){c.moveTo(x,y+step/2);c.lineTo(x+1.2,y+step/2);}}
+    c.stroke();}
+}
+
+/* ================= LiftOff hologram (gold) ================= */
+const VEH=[
+ {n:"ROCKET",p:[[1,0],[.55,.11],[-.75,.11],[-.95,.3],[-1,.3],[-.95,.11],[-1,.11],[-1,-.11],[-.95,-.11],[-1,-.3],[-.95,-.3],[-.75,-.11],[.55,-.11]]},
+ {n:"RACE CAR",p:[[1,-.08],[.95,0],[.45,.05],[.2,.22],[-.3,.24],[-.55,.12],[-.8,.12],[-.85,.36],[-1,.36],[-1,-.08],[-.72,-.12],[.72,-.12]]},
+ {n:"AIRCRAFT",p:[[1,0],[.85,.08],[.2,.1],[-.1,.5],[-.25,.5],[-.12,.1],[-.7,.1],[-.9,.42],[-1,.42],[-.95,.05],[-1,-.04],[-.8,-.1],[.8,-.1]]},
+ {n:"DRONE",p:[[.95,.05],[.95,.1],[.55,.1],[.55,.05],[.25,.05],[.2,-.12],[-.2,-.12],[-.25,.05],[-.55,.05],[-.55,.1],[-.95,.1],[-.95,.05],[-.6,.03],[.6,.03]]},
+ {n:"BOAT",p:[[1,.12],[.75,-.12],[-1,-.12],[-1,.12],[-.4,.12],[-.35,.3],[.2,.3],[.3,.12]]},
+ {n:"SUBMARINE",p:[[1,0],[.9,.13],[.4,.15],[.2,.15],[.15,.34],[-.12,.34],[-.15,.15],[-.6,.13],[-.95,.03],[-1,.1],[-1,-.1],[-.95,-.03],[-.6,-.13],[.9,-.13]]}];
+const FLOW=Array.from({length:80},()=>[Math.random(),Math.random()*1.1-.05,Math.random()*.6+.7]);
+let holoRaf=0;
+function holo(start){
+  cancelAnimationFrame(holoRaf);if(!start)return;const cv=$("#holo");const t0=performance.now();
+  const tick=n=>{const W=cv.clientWidth,H=cv.clientHeight;if(!W){return;}if(cv.width!==W*DPR){cv.width=W*DPR;cv.height=H*DPR;}
+    const x=cv.getContext("2d");x.setTransform(DPR,0,0,DPR,0,0);const t=Math.max(0,(n-t0)/1000);
+    x.fillStyle="#08080A";x.fillRect(0,0,W,H);
+    const cx=W*.5,cy=H*.46,sc=Math.min(W,H)*.3,per=3.2,i=Math.floor(t/per)%6,ph=(t%per)/per,fade=REDUCE?1:(ph<.12?ph/.12:ph>.88?(1-ph)/.12:1),v=VEH[i];
+    x.strokeStyle="rgba(212,175,55,.3)";for(let k=1;k<=3;k++){x.globalAlpha=.6/k;x.beginPath();x.ellipse(cx,cy+sc*.72,sc*1.2*k*.55,sc*.15*k*.55,0,0,7);x.stroke();}x.globalAlpha=1;
+    const a=sc*1.05,b=sc*.28;
+    for(const p of FLOW){if(!REDUCE){p[0]-=.0035*p[2];if(p[0]<-.02){p[0]=1.02;p[1]=Math.random()*1.1-.05;}}
+      let X=cx+(p[0]*2-1)*W*.46,Y=cy+(p[1]-.5)*sc*1.9;x.beginPath();x.moveTo(X,Y);let sp=1;
+      for(let k=0;k<12;k++){const qx=(X-cx)/a,qy=(Y-cy)/b,r2=Math.max(qx*qx+qy*qy,1.02),rr=Math.sqrt(r2),rx=qx/rr,ry=qy/rr,kk=1/(2*r2*rr);const vx=-1+kk*(3*rx*rx-1),vy=kk*3*rx*ry;sp=Math.hypot(vx,vy);X+=vx*6;Y+=vy*6*(b/a);x.lineTo(X,Y);}
+      x.strokeStyle=sp>1.2?`rgba(255,243,196,${.6*fade})`:sp<.8?`rgba(138,106,34,${.6*fade})`:`rgba(212,175,55,${.5*fade})`;x.lineWidth=1.3;x.stroke();}
+    x.save();x.translate(cx,cy);x.beginPath();v.p.forEach((q,j)=>j?x.lineTo(q[0]*sc,-q[1]*sc):x.moveTo(q[0]*sc,-q[1]*sc));x.closePath();
+    x.fillStyle=`rgba(212,175,55,${.1*fade})`;x.fill();x.strokeStyle=`rgba(255,243,196,${fade})`;x.lineWidth=2.4;x.shadowColor="#D4AF37";x.shadowBlur=18;x.stroke();x.restore();x.shadowBlur=0;
+    x.fillStyle=`rgba(241,224,166,${fade})`;x.font="500 12px 'IBM Plex Mono', monospace";x.textAlign="center";x.fillText(v.n+"  ·  "+(i+1)+" / 6",cx,cy+sc*1.08);
+    if(!REDUCE)holoRaf=requestAnimationFrame(tick);};
+  holoRaf=requestAnimationFrame(tick);
+}
+
+/* ================= founder medal ================= */
+function medal(){
+  const cv=$("#medal"),W=cv.clientWidth,H=cv.clientHeight;if(!W)return;cv.width=W*DPR;cv.height=H*DPR;const c=cv.getContext("2d");c.scale(DPR,DPR);
+  const cx=W/2,cy=H/2,R=Math.min(W,H)*.46;
+  for(let i=0;i<72;i++){const a=i/72*Math.PI*2,r1=R*(i%6===0?.86:.9);c.strokeStyle=i%6===0?"rgba(212,175,55,.7)":"rgba(212,175,55,.28)";c.beginPath();c.moveTo(cx+Math.cos(a)*r1,cy+Math.sin(a)*r1);c.lineTo(cx+Math.cos(a)*R*.94,cy+Math.sin(a)*R*.94);c.stroke();}
+  c.font="500 11px 'IBM Plex Mono', monospace";c.fillStyle="rgba(241,224,166,.8)";c.textAlign="center";
+  const txt="· CONDITOR · APEX TECHNOLOGIES · MMXXVI ";for(let i=0;i<txt.length;i++){const a=-Math.PI/2+(i/txt.length)*Math.PI*2;c.save();c.translate(cx+Math.cos(a)*R*.78,cy+Math.sin(a)*R*.78);c.rotate(a+Math.PI/2);c.fillText(txt[i],0,0);c.restore();}
+}
+
+/* ================= transition veil ================= */
+const veil=$("#veil"),vcv=$("#veil-cv");
+function drawVeilLines(p){const W=innerWidth,H=innerHeight;if(vcv.width!==W*DPR){vcv.width=W*DPR;vcv.height=H*DPR;}const c=vcv.getContext("2d");c.setTransform(DPR,0,0,DPR,0,0);c.clearRect(0,0,W,H);
+  for(let i=0;i<28;i++){const y=H*(i/28)+((p*140)%(H/28));c.strokeStyle=`rgba(212,175,55,${i%7===0?.28:.08})`;c.beginPath();for(let x=0;x<=W;x+=24){const yy=y+Math.sin(x*.006+i*.7+p*3)*14;x?c.lineTo(x,yy):c.moveTo(x,yy);}c.stroke();}
+  c.fillStyle="rgba(212,175,55,.45)";c.font="500 10px 'IBM Plex Mono', monospace";for(let i=0;i<8;i++){c.fillText(fmt(5000+i*500)+" M",24,H-(i+1)*H/9);}}
+const HIDDEN_B="polygon(0% 100%, 25% 100%, 50% 100%, 75% 100%, 100% 100%, 100% 100%, 0% 100%)";
+const PEAKED ="polygon(0% 62%, 25% 38%, 50% 4%, 75% 34%, 100% 58%, 100% 100%, 0% 100%)";
+const FULL   ="polygon(0% 0%, 25% 0%, 50% 0%, 75% 0%, 100% 0%, 100% 100%, 0% 100%)";
+const EXIT   ="polygon(0% 0%, 25% 0%, 50% 0%, 75% 0%, 100% 0%, 100% 0%, 0% 0%)";
+let busy=false;
+async function transit(fromKey,toKey,swap){
+  if(REDUCE||!veil.animate){swap();return;}
+  busy=true;const A=PAGES[fromKey]?.alt??5364,B=PAGES[toKey].alt;
+  $("#v-lat").textContent=PAGES[toKey].lat;$("#v-sub").textContent=(B>A?"Ascending to ":B<A?"Descending to ":"Holding at ")+PAGES[toKey].sub;
+  veil.style.visibility="visible";
+  const t0=performance.now(),dur=1500;let run=true;
+  const count=n=>{if(!run)return;const p=Math.min(1,(n-t0)/dur),e=p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2;$("#v-alt").innerHTML=fmt(A+(B-A)*e)+"<small>M</small>";drawVeilLines(p);requestAnimationFrame(count);};
+  requestAnimationFrame(count);
+  await veil.animate([{clipPath:HIDDEN_B},{clipPath:PEAKED,offset:.55},{clipPath:FULL}],{duration:620,easing:"cubic-bezier(.7,0,.25,1)",fill:"forwards"}).finished;
+  swap();
+  await new Promise(r=>setTimeout(r,560));
+  await veil.animate([{clipPath:FULL},{clipPath:EXIT}],{duration:620,easing:"cubic-bezier(.75,0,.2,1)",fill:"forwards"}).finished;
+  run=false;veil.style.visibility="hidden";veil.style.clipPath=HIDDEN_B;veil.getAnimations().forEach(a=>a.cancel());busy=false;
+}
+
+/* ================= router ================= */
+let current=null,param=null;
+function keyFromHash(){const p=location.hash.replace(/^#\/?/,"").split("/");param=p[1]||null;return PAGES[p[0]]?p[0]:"summit";}
+function show(key){
+  $$(".page").forEach(p=>{p.hidden=p.dataset.page!==key;p.classList.remove("in");});
+  const pg=$(`[data-page="${key}"]`);void pg.offsetWidth;pg.classList.add("in");
+  $$("[data-nav]").forEach(a=>a.dataset.nav===key?a.setAttribute("aria-current","page"):a.removeAttribute("aria-current"));
+  window.scrollTo(0,0);
+  $("#alt-num").textContent=fmt(PAGES[key].alt)+" M";$("#alt-lab").textContent=PAGES[key].label;
+  $("#alt-tick").style.top=((8849-PAGES[key].alt)/(8849-5364)*178)+"px";
+  if(key==="summit")Ev.start();else Ev.stop();
+  holo(key==="expeditions");
+  if(key==="founder")medal();
+  const bg=pg.querySelector(".bgtopo");if(bg)topo(bg,Object.keys(PAGES).indexOf(key)+1,.16);
+  $("#links").classList.remove("open");$("#burger").setAttribute("aria-expanded","false");
+  if(typeof onShow==="function")onShow(key,param);
+}
+function route(){const key=keyFromHash(),same=key===current;if(same&&key!=="project"){if(typeof onShow==="function")onShow(key,param);return;}
+  const from=current;current=key;
+  if(from===null||same){show(key);return;}transit(from,key,()=>show(key));}
+addEventListener("hashchange",route);
+$("#burger").addEventListener("click",()=>{const o=$("#links").classList.toggle("open");$("#burger").setAttribute("aria-expanded",o?"true":"false");});
+
+/* ================= card tilt ================= */
+if(!REDUCE)$$(".exp").forEach(el=>{
+  el.addEventListener("pointermove",e=>{const r=el.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;el.style.transform=`perspective(900px) rotateY(${x*6}deg) rotateX(${-y*6}deg) translateY(-3px)`;});
+  el.addEventListener("pointerleave",()=>{el.style.transform="";});
+});
+
+/* ================= contact form ================= */
+let reason="Post my project";
+function setReason(r){reason=r;$$(".role").forEach(b=>b.setAttribute("aria-pressed",b.dataset.r===r?"true":"false"));}
+$$(".role").forEach(b=>b.addEventListener("click",()=>setReason(b.dataset.r)));
+$$("[data-topic]").forEach(a=>a.addEventListener("click",()=>setReason(a.dataset.topic==="Post my project"?"Post my project":"Project question")));
+function compose(){const n=$("#f-name").value.trim(),e=$("#f-email").value.trim(),l=$("#f-link").value.trim(),m=$("#f-msg").value.trim();
+  return {n,e,l,m,subject:`[Apex] ${reason} · ${n||"New message"}`,body:`${m}\n\n${l?"Link: "+l+"\n":""}— ${n}\n${e}\nReason: ${reason}`};}
+function valid(){const c=compose(),s=$("#f-status");
+  if(!c.n){s.innerHTML='<span class="no">Add your name so we know who to reply to.</span>';$("#f-name").focus();return null;}
+  if(!/^\S+@\S+\.\S+$/.test(c.e)){s.innerHTML='<span class="no">Add an email address we can reply to.</span>';$("#f-email").focus();return null;}
+  if(c.m.length<10){s.innerHTML='<span class="no">Write a sentence or two about what you have in mind.</span>';$("#f-msg").focus();return null;}
+  return c;}
+$("#letter").addEventListener("submit",async ev=>{ev.preventDefault();const c=valid();if(!c)return;const s=$("#f-status");
+  if(FORM_ENDPOINT){try{s.textContent="Sending…";const r=await fetch(FORM_ENDPOINT,{method:"POST",headers:{"Accept":"application/json","Content-Type":"application/json"},body:JSON.stringify({name:c.n,email:c.e,reason,link:c.l,message:c.m})});if(!r.ok)throw 0;
+      s.innerHTML='<span class="ok">Sent. You will hear back soon.</span>';$("#letter").reset();return;}catch(e){s.innerHTML='<span class="no">Couldn\'t send from here. Opening your email app instead.</span>';}}
+  location.href=`mailto:${EMAIL}?subject=${encodeURIComponent(c.subject)}&body=${encodeURIComponent(c.body)}`;
+  s.innerHTML=`<span class="ok">Your email app should open with the message ready.</span> If it doesn't, use Copy message and send it to ${EMAIL}.`;});
+$("#f-copy").addEventListener("click",async()=>{const c=valid();if(!c)return;try{await navigator.clipboard.writeText(`To: ${EMAIL}\nSubject: ${c.subject}\n\n${c.body}`);$("#f-status").innerHTML=`<span class="ok">Copied.</span> Paste it into an email to ${EMAIL}.`;}catch(e){$("#f-status").textContent=`Copy isn't available here. Email ${EMAIL} directly.`;}});
+
+
+/* ===================================================================
+   APEX APP LAYER — Supabase when configured, local demo data otherwise
+   =================================================================== */
+const LIVE=!!(SUPABASE_URL&&SUPABASE_ANON_KEY&&window.supabase);
+const sb=LIVE?window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY):null;
+const esc=t=>String(t??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const href=u=>{const v=String(u||"").trim();return /^https?:\/\//i.test(v)?v:"";};
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("on"),3200);}
+const LS={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
+/* ---- the six real expeditions already on the route ---- */
+const SEED=[
+ {slug:"liftoff",title:"LiftOff",cat:"Aerospace",stage:"live",need:"users",pitch:"Design a rocket, car, plane, drone, boat or submarine and let real physics judge it.",
+  demo:"https://abhiramnimmala.github.io/Lift_Off/",repo:"https://github.com/AbhiramNimmala/Lift_Off",video:"https://youtu.be/QlAZ29NOulA",deck:"https://claude.ai/artifact/Kf7uKTxcnfSDWAeWn76eW4",
+  stack:["Three.js","WebGL","Llama","Elastic","MongoDB","Deepgram"],owner:"Abhiram Nimmala",created:"2026-09-20",
+  traction:"Built at HackMIT 2026; 9 sponsor technologies integrated; prediction error cut from 8.2% to ~3%.",
+  desc:"An aerodynamics lab for anything that moves through air or water. Six vehicle bays, five worlds, a wind tunnel and a 15-lesson academy, running the same models used in aerospace engineering: the 1976 Standard Atmosphere, Barrowman stability, the rocket equation, lifting-line wings, rotor momentum theory and Froude scaling. Stress-tested on 24 reference and 1,500 random designs with no failures."},
+ {slug:"scribe",title:"Scribe",cat:"Health",stage:"live",need:"advice",pitch:"A live doctor–patient conversation becomes a clinical note and billing codes in real time.",
+  demo:"https://abhiramnimmala.github.io/Scribe/",repo:"",video:"",deck:"https://devpost.com/software/scribe-52cq4b",
+  stack:["Claude API","Deepgram","Supabase","JavaScript"],owner:"Abhiram Nimmala",created:"2026-06-15",
+  traction:"Built solo at the UC Berkeley AI Hackathon against teams from MIT, Stanford and Harvard. Deployed publicly.",
+  desc:"Ambient clinical documentation. Speech-to-text with speaker diarization feeds clinical reasoning with schema-constrained output, producing a SOAP note and validated ICD-10 codes. Human-in-the-loop by design: a physician verifies every note, medication interactions are checked before the plan is drafted, and every change is audit-logged."},
+ {slug:"flight-simulator",title:"6-DOF Flight Simulator",cat:"Aerospace",stage:"prototype",need:"advice",pitch:"A six-degree-of-freedom rocket flight engine written from scratch, stage by stage.",
+  demo:"",repo:"",video:"",deck:"",stack:["Python","NumPy","Control theory"],owner:"Abhiram Nimmala",created:"2026-09-14",
+  traction:"Seven build stages, each validated before the next: 7 validation figures and a 3D flight viewer.",
+  desc:"RK4 integration, US Standard Atmosphere 1976, transonic drag, thrust curves parsed from real motor files, quaternion rigid-body attitude and Barrowman aerodynamics, plus PID and LQR fin control with actuator lag, rate and deflection limits."},
+ {slug:"summit",title:"SUMMIT",cat:"Fintech",stage:"prototype",need:"users",pitch:"Quant-level trading tools in a retail investor's pocket, scoring process over luck.",
+  demo:"",repo:"",video:"",deck:"",stack:["JavaScript","Backtesting","AI analytics"],owner:"Abhiram Nimmala",created:"2026-08-01",
+  traction:"Six major versions shipped with documented architecture and release notes.",
+  desc:"A backtesting engine with signal filters, paper trading and a conviction tracker, plus a 200–800 Quant Score that rewards a sound, repeatable process rather than a lucky win."},
+ {slug:"dynasty",title:"Dynasty",cat:"Software",stage:"prototype",need:"users",pitch:"A sports management simulator across three sports and nine playable modes.",
+  demo:"",repo:"",video:"",deck:"",stack:["React Native","Expo","Skia","SQLite"],owner:"Abhiram Nimmala",created:"2026-08-20",
+  traction:"Engines validated over 5,000 simulated games. Preparing for App Store release.",
+  desc:"Manager, Owner and Career modes across basketball, soccer and football, with animated play-by-play on Skia canvases, local SQLite saves, custom team theming and haptics."},
+ {slug:"emberline",title:"Emberline",cat:"Climate",stage:"prototype",need:"cofounder",pitch:"Twenty years of satellite fire detections, harmonized into one burning-activity calendar.",
+  demo:"",repo:"",video:"",deck:"",stack:["Python","pandas","NASA FIRMS","Leaflet","D3"],owner:"Abhiram Nimmala",created:"2026-09-21",
+  traction:"Entry for NASA Space Apps 2026 (November 14–15).",
+  desc:"MODIS and VIIRS see the same fires differently, so their records can't be compared directly. Emberline converts detections to daily burning presence on a shared grid, calibrates VIIRS to MODIS over their overlap years, and draws a fire calendar with typical seasons, critical periods and anomalies for any area you draw."}
+];
+const NEEDS={users:"Needs first users",cofounder:"Needs a cofounder",funding:"Raising",parts:"Needs parts",advice:"Wants advice"};
+const STAGES={prototype:"Prototype",live:"Live",users:"Has users",revenue:"Revenue"};
+
+/* ---------------- data layer ---------------- */
+function localState(){return LS.get("apex-state",{projects:[],follows:[],intros:[],investors:[],views:{}});}
+function saveLocal(st){LS.set("apex-state",st);}
+function allLocal(){const st=localState();return [...st.projects,...SEED].map(p=>({...p,views:(st.views[p.slug]||0),follows:st.follows.filter(f=>f===p.slug).length}));}
+const DB={
+  async list(){
+    if(!LIVE)return allLocal();
+    const{data,error}=await sb.from("projects").select("*").eq("published",true).order("created_at",{ascending:false});
+    if(error){console.warn(error);return allLocal();}
+    return data.map(mapRow);
+  },
+  async get(slug){
+    if(!LIVE)return allLocal().find(p=>p.slug===slug)||null;
+    const{data}=await sb.from("projects").select("*").eq("slug",slug).maybeSingle();
+    return data?mapRow(data):(allLocal().find(p=>p.slug===slug)||null);
+  },
+  async create(p){
+    if(!LIVE){const st=localState();st.projects.unshift({...p,created:new Date().toISOString().slice(0,10)});saveLocal(st);return p.slug;}
+    const{error}=await sb.from("projects").insert({slug:p.slug,title:p.title,pitch:p.pitch,category:p.cat,stage:p.stage,need:p.need,demo_url:p.demo,repo_url:p.repo,video_url:p.video,deck_url:p.deck,stack:p.stack,description:p.desc,traction:p.traction,owner_name:p.owner,owner_id:session?.user?.id,published:true});
+    if(error)throw error;return p.slug;
+  },
+  async mine(){
+    if(!session)return[];
+    if(!LIVE)return allLocal().filter(p=>p.owner_email===session.email||(isOwner()&&p.owner==="Abhiram Nimmala"));
+    const{data}=await sb.from("projects").select("*").eq("owner_id",session.user.id).order("created_at",{ascending:false});
+    return (data||[]).map(mapRow);
+  },
+  async bumpView(slug){
+    if(!LIVE){const st=localState();st.views[slug]=(st.views[slug]||0)+1;saveLocal(st);return;}
+    await sb.rpc("bump_view",{p_slug:slug});
+  },
+  async toggleFollow(slug,id){
+    if(!LIVE){const st=localState();const i=st.follows.indexOf(slug);i<0?st.follows.push(slug):st.follows.splice(i,1);saveLocal(st);return i<0;}
+    const{data}=await sb.from("follows").select("id").eq("project_id",id).eq("user_id",session.user.id).maybeSingle();
+    if(data){await sb.from("follows").delete().eq("id",data.id);return false;}
+    await sb.from("follows").insert({project_id:id,user_id:session.user.id});return true;
+  },
+  async intro(p,message){
+    if(!LIVE){const st=localState();st.intros.push({slug:p.slug,message,from:session?.email||"guest",at:Date.now()});saveLocal(st);return;}
+    const{error}=await sb.from("intro_requests").insert({project_id:p.id,requester_id:session.user.id,message});
+    if(error)throw error;
+  },
+  async introsForMe(){
+    if(!LIVE){const st=localState();const mine=(await DB.mine()).map(p=>p.slug);return st.intros.filter(i=>mine.includes(i.slug));}
+    const{data}=await sb.from("intro_requests").select("*, projects(title,slug)").order("created_at",{ascending:false});
+    return data||[];
+  },
+  async investorRequest(r){
+    if(!LIVE){const st=localState();st.investors.push({...r,at:Date.now(),status:"pending"});saveLocal(st);return;}
+    const{error}=await sb.from("investor_requests").insert(r);if(error)throw error;
+  },
+  async investorRequests(){
+    if(!LIVE)return localState().investors;
+    const{data}=await sb.from("investor_requests").select("*").order("created_at",{ascending:false});return data||[];
+  },
+  async setInvestorStatus(id,status){
+    if(!LIVE){const st=localState();const r=st.investors[id];if(r)r.status=status;saveLocal(st);return;}
+    await sb.from("investor_requests").update({status}).eq("id",id);
+  }
+};
+function mapRow(r){return{id:r.id,slug:r.slug,title:r.title,pitch:r.pitch,cat:r.category,stage:r.stage,need:r.need,demo:r.demo_url,repo:r.repo_url,video:r.video_url,deck:r.deck_url,stack:r.stack||[],desc:r.description,traction:r.traction,owner:r.owner_name,created:(r.created_at||"").slice(0,10),views:r.views||0,follows:r.follow_count||0};}
+
+/* ---------------- auth ---------------- */
+let session=null;
+async function initAuth(){
+  if(LIVE){
+    const{data}=await sb.auth.getSession();setSession(data.session);
+    sb.auth.onAuthStateChange((_e,s)=>{setSession(s);if(current)onShow(current,param);});
+  }else{
+    const u=LS.get("apex-user",null);session=u?{email:u.email,name:u.name,user:{id:"local-"+u.email}}:null;
+  }
+  paintAcct();
+}
+function setSession(s){session=s?{email:s.user.email,name:s.user.user_metadata?.full_name||s.user.email.split("@")[0],user:s.user}:null;paintAcct();}
+const isOwner=()=>!!session&&session.email.toLowerCase()===OWNER_EMAIL.toLowerCase();
+function paintAcct(){const a=$("#nav-acct");if(!a)return;a.innerHTML=session?'<i>VI</i>'+esc(session.name.split(" ")[0].slice(0,11)):'<i>VI</i>Sign in';a.href=session?"#/dashboard":"#/signin";}
+async function signOut(){if(LIVE)await sb.auth.signOut();else{LS.set("apex-user",null);session=null;}paintAcct();toast("Signed out");location.hash="#/";}
+
+$("#sso-google")?.addEventListener("click",async()=>{
+  if(!LIVE){demoSignIn();return;}
+  const{error}=await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:location.href.split("#")[0]+"#/dashboard"}});
+  if(error)$("#auth-status").innerHTML='<span class="no">'+esc(error.message)+"</span>";
+});
+$("#magic-form")?.addEventListener("submit",async e=>{
+  e.preventDefault();const email=$("#m-email").value.trim(),st=$("#auth-status");
+  if(!/^\S+@\S+\.\S+$/.test(email)){st.innerHTML='<span class="no">Enter a valid email.</span>';return;}
+  if(!LIVE){demoSignIn(email);return;}
+  st.textContent="Sending…";
+  const{error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:location.href.split("#")[0]+"#/dashboard"}});
+  st.innerHTML=error?'<span class="no">'+esc(error.message)+"</span>":'<span class="ok">Check your inbox for the sign-in link.</span>';
+});
+function demoSignIn(email){
+  const e=email||"you@example.com";session={email:e,name:e.split("@")[0],user:{id:"local-"+e}};LS.set("apex-user",{email:e,name:session.name});
+  paintAcct();toast("Signed in (preview mode)");location.hash="#/dashboard";
+}
+
+/* ---------------- pitch check ---------------- */
+function pitchCheck(p){
+  const checks=[
+    {ok:!!href(p.demo)||!!href(p.video),b:"A link someone can open",fix:"Add a live demo or a video. Investors open one link, not a repo."},
+    {ok:(p.pitch||"").trim().length>0&&(p.pitch||"").trim().split(/\s+/).length<=18,b:"A one-line pitch under 18 words",fix:"Say what it does in one sentence, no adjectives."},
+    {ok:(p.traction||"").trim().length>12,b:"Evidence it exists in the world",fix:"Add traction: users, downloads, a competition result, a deployment."},
+    {ok:!!p.need,b:"A clear ask",fix:"Pick what you need next so the right person can help."},
+    {ok:(p.desc||"").trim().length>180,b:"The story behind it",fix:"Write a short paragraph: the problem, what you built, what you learned."}
+  ];
+  return {score:Math.round(checks.filter(c=>c.ok).length/checks.length*100),checks};
+}
+function paintScore(p){
+  const{score,checks}=pitchCheck(p);
+  $("#sc-num").textContent=score;$("#sc-bar").style.width=score+"%";
+  $("#sc-list").innerHTML=checks.map(c=>`<li class="${c.ok?"pass":""}"><span class="dot"></span><div><b>${esc(c.b)}</b>${c.ok?"Done.":esc(c.fix)}</div></li>`).join("");
+}
+function postFormValues(){
+  return{title:$("#p-title").value.trim(),pitch:$("#p-pitch").value.trim(),cat:$("#p-cat").value,stage:$("#p-stage").value,need:$("#p-need").value,
+    demo:$("#p-demo").value.trim(),repo:$("#p-repo").value.trim(),video:$("#p-video").value.trim(),deck:"",
+    stack:$("#p-stack").value.split(",").map(x=>x.trim()).filter(Boolean),desc:$("#p-desc").value.trim(),traction:$("#p-traction").value.trim(),
+    owner:session?.name||"",owner_email:session?.email||""};
+}
+$("#post-form")?.addEventListener("input",()=>paintScore(postFormValues()));
+$("#post-form")?.addEventListener("submit",async e=>{
+  e.preventDefault();const st=$("#post-status"),v=postFormValues();
+  if(!session){st.innerHTML='<span class="no">Sign in first so intro requests reach you.</span>';setTimeout(()=>location.hash="#/signin",900);return;}
+  if(!v.title||!v.pitch||!v.desc){st.innerHTML='<span class="no">Name, one-line pitch and the story are required.</span>';return;}
+  v.slug=v.title.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,48)||("project-"+Date.now());
+  try{st.textContent="Publishing…";await DB.create(v);toast("Project published");location.hash="#/project/"+v.slug;}
+  catch(err){st.innerHTML='<span class="no">'+esc(err.message||"Could not publish. Try again.")+"</span>";}
+});
+
+/* ---------------- investor requests ---------------- */
+$("#inv-form")?.addEventListener("submit",async e=>{
+  e.preventDefault();const st=$("#inv-status");
+  const r={name:$("#i-name2").value.trim(),email:$("#i-email2").value.trim(),firm:$("#i-firm").value.trim(),link:$("#i-link").value.trim(),focus:$("#i-focus").value.trim()};
+  if(!r.name||!/^\S+@\S+\.\S+$/.test(r.email)||r.focus.length<10){st.innerHTML='<span class="no">Name, a valid email and what you back are required.</span>';return;}
+  try{st.textContent="Sending…";await DB.investorRequest(r);$("#inv-form").reset();st.innerHTML='<span class="ok">Request received. You will hear back after review.</span>';toast("Request sent");}
+  catch(err){st.innerHTML='<span class="no">'+esc(err.message||"Could not send.")+"</span>";}
+});
+
+/* ---------------- renderers ---------------- */
+let dirCache=null,dirFilter="all",dirQuery="";
+function projCard(p){
+  return `<article class="exp"><div class="top"><span class="code">${esc(p.cat).toUpperCase()}</span><span class="status${p.stage==="prototype"?" dev":""}">${esc(STAGES[p.stage]||p.stage)}</span></div>
+  <h3>${esc(p.title)}</h3><p>${esc(p.pitch)}</p>
+  <div class="meta"><span class="badge need">${esc(NEEDS[p.need]||p.need)}</span>${(p.stack||[]).slice(0,3).map(t=>`<span class="badge">${esc(t)}</span>`).join("")}</div>
+  <div class="links-row foot"><a href="#/project/${esc(p.slug)}">Open expedition →</a><span class="count">${p.views||0} views · ${p.follows||0} following</span></div></article>`;
+}
+async function renderDirectory(force){
+  const box=$("#dir");if(!box)return;
+  if(force||!dirCache){box.innerHTML='<p class="hint">Loading expeditions…</p>';dirCache=await DB.list();}
+  const q=dirQuery.toLowerCase();
+  const list=dirCache.filter(p=>(dirFilter==="all"||p.cat===dirFilter)&&(!q||(p.title+" "+p.pitch+" "+(p.stack||[]).join(" ")).toLowerCase().includes(q)));
+  box.innerHTML=list.length?list.map(projCard).join("")+`<article class="exp" style="border-style:dashed"><div class="top"><span class="code">OPEN</span><span class="status dev">Yours</span></div><h3>Post your build</h3><p>Built something and stuck at “now what?” Put it on the route and let investors find it.</p><div class="links-row foot"><a href="#/post">Post your project →</a></div></article>`
+    :`<div class="empty" style="grid-column:1/-1"><b>No expeditions match that.</b><span>Try another filter, or post the first one.</span><a class="btn sm" href="#/post">Post a project</a></div>`;
+  if(!REDUCE)$$("#dir .exp").forEach(el=>{
+    el.addEventListener("pointermove",ev=>{const r=el.getBoundingClientRect(),x=(ev.clientX-r.left)/r.width-.5,y=(ev.clientY-r.top)/r.height-.5;el.style.transform=`perspective(900px) rotateY(${x*6}deg) rotateX(${-y*6}deg) translateY(-3px)`;});
+    el.addEventListener("pointerleave",()=>{el.style.transform="";});});
+}
+$$(".fchip").forEach(b=>b.addEventListener("click",()=>{dirFilter=b.dataset.f;$$(".fchip").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));renderDirectory();}));
+$("#dir-q")?.addEventListener("input",e=>{dirQuery=e.target.value;renderDirectory();});
+
+async function renderProject(slug){
+  const box=$("#proj-view");box.innerHTML='<p class="hint" style="margin-top:40px">Loading…</p>';
+  const p=await DB.get(slug);
+  if(!p){box.innerHTML='<div class="empty" style="margin-top:40px"><b>That expedition is not on the route.</b><a class="btn sm" href="#/expeditions">Back to all</a></div>';return;}
+  DB.bumpView(slug);
+  const links=[["Live demo",p.demo],["Code",p.repo],["Video",p.video],["Deck / writeup",p.deck]].filter(([,u])=>href(u));
+  box.innerHTML=`<div class="proj-hero" style="margin-top:26px">
+    <div>
+      <div class="meta"><span class="badge stage">${esc(STAGES[p.stage]||p.stage)}</span><span class="badge need">${esc(NEEDS[p.need]||p.need)}</span><span class="badge">${esc(p.cat)}</span></div>
+      <h2 class="h-page" style="margin:16px 0 12px">${esc(p.title)}</h2>
+      <p class="lede">${esc(p.pitch)}</p>
+      <p style="color:var(--muted);margin-top:22px;max-width:64ch">${esc(p.desc)}</p>
+      ${p.traction?`<p style="margin-top:18px"><span class="eyebrow">Traction</span><br>${esc(p.traction)}</p>`:""}
+      <div class="stack-links" style="margin-top:22px">${(p.stack||[]).map(t=>`<span class="badge">${esc(t)}</span>`).join("")}</div>
+      <div class="btns" style="margin-top:26px">${links.map(([t,u])=>`<a class="btn sm" href="${esc(href(u))}" target="_blank" rel="noopener">${esc(t)} ↗</a>`).join("")}</div>
+    </div>
+    <aside class="panel">
+      <h3>Back this climb</h3>
+      <div class="kv">
+        <div><span>Builder</span><b>${esc(p.owner||"—")}</b></div>
+        <div><span>Posted</span><b>${esc(p.created||"—")}</b></div>
+        <div><span>Views</span><b>${p.views||0}</b></div>
+        <div><span>Following</span><b id="fc-count">${p.follows||0}</b></div>
+      </div>
+      <button class="btn sm" id="follow-btn" style="justify-content:center">Follow the build</button>
+      <form id="intro-form" style="display:grid;gap:12px">
+        <div class="field"><label for="intro-msg">Request an intro</label><textarea id="intro-msg" style="min-height:90px" placeholder="What you'd like to talk about."></textarea></div>
+        <button class="btn sm solid" type="submit" style="justify-content:center">Send request</button>
+      </form>
+      <p class="msg" id="intro-status" role="status"></p>
+    </aside></div>`;
+  $("#follow-btn").addEventListener("click",async()=>{
+    if(!session){toast("Sign in to follow");location.hash="#/signin";return;}
+    const on=await DB.toggleFollow(p.slug,p.id);const c=$("#fc-count");c.textContent=Math.max(0,(+c.textContent)+(on?1:-1));
+    $("#follow-btn").textContent=on?"Following ✓":"Follow the build";dirCache=null;
+  });
+  $("#intro-form").addEventListener("submit",async e=>{
+    e.preventDefault();const st=$("#intro-status"),m=$("#intro-msg").value.trim();
+    if(!session){st.innerHTML='<span class="no">Sign in first.</span>';setTimeout(()=>location.hash="#/signin",800);return;}
+    if(m.length<10){st.innerHTML='<span class="no">Add a line about why.</span>';return;}
+    try{await DB.intro(p,m);$("#intro-msg").value="";st.innerHTML='<span class="ok">Sent. The builder gets it straight away.</span>';toast("Intro requested");}
+    catch(err){st.innerHTML='<span class="no">'+esc(err.message||"Could not send.")+"</span>";}
+  });
+}
+
+async function renderDashboard(){
+  const box=$("#dash");
+  if(!session){box.innerHTML=`<span class="eyebrow">Your camp</span><h2 class="h-page">Sign in to see your climb.</h2>
+    <div class="btns"><a class="btn solid" href="#/signin">Sign in</a><a class="btn" href="#/expeditions">Browse expeditions</a></div>`;return;}
+  box.innerHTML='<p class="hint" style="margin-top:40px">Loading…</p>';
+  const mine=await DB.mine(),intros=await DB.introsForMe();
+  const views=mine.reduce((s,p)=>s+(p.views||0),0),follows=mine.reduce((s,p)=>s+(p.follows||0),0);
+  box.innerHTML=`<div class="head-row"><div><span class="eyebrow">Statio tua · Camp III</span><h2 class="h-page">Welcome back, ${esc(session.name)}.</h2></div>
+    <div class="btns">${isOwner()?'<a class="btn sm" href="#/admin">Admin</a>':""}<a class="btn sm" href="#/post">Post a project</a><button class="btn sm" id="signout">Sign out</button></div></div>
+    <div class="card stats" style="border:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);margin-bottom:26px">
+      <div style="padding:20px 22px;border-right:1px solid var(--line)"><b style="display:block;font:500 30px/1 var(--display);color:var(--champagne)">${mine.length}</b><span class="count">projects</span></div>
+      <div style="padding:20px 22px;border-right:1px solid var(--line)"><b style="display:block;font:500 30px/1 var(--display);color:var(--champagne)">${views}</b><span class="count">views</span></div>
+      <div style="padding:20px 22px;border-right:1px solid var(--line)"><b style="display:block;font:500 30px/1 var(--display);color:var(--champagne)">${follows}</b><span class="count">followers</span></div>
+      <div style="padding:20px 22px"><b style="display:block;font:500 30px/1 var(--display);color:var(--champagne)">${intros.length}</b><span class="count">intro requests</span></div>
+    </div>
+    <h3 style="font:500 22px/1.2 var(--display);letter-spacing:.07em;margin:0 0 14px">Your projects</h3>
+    <div class="rows">${mine.length?mine.map(p=>{const s=pitchCheck(p);return `<div class="row-item"><div><b>${esc(p.title)}</b><p>${esc(p.pitch)}</p>
+      <p class="hint">${p.views||0} views · ${p.follows||0} following · pitch check ${s.score}/100${s.score<100?" · next: "+esc(s.checks.find(c=>!c.ok).fix):""}</p></div>
+      <div class="actions"><a class="btn sm" href="#/project/${esc(p.slug)}">Open</a></div></div>`}).join(""):
+      `<div class="empty"><b>Nothing posted yet.</b><span>Your first project page takes two minutes.</span><a class="btn sm" href="#/post">Post a project</a></div>`}</div>
+    <h3 style="font:500 22px/1.2 var(--display);letter-spacing:.07em;margin:34px 0 14px">Intro requests</h3>
+    <div class="rows">${intros.length?intros.map(i=>`<div class="row-item"><div><b>${esc(i.projects?.title||i.slug)}</b><p>${esc(i.message)}</p><p class="hint">${esc(i.from||i.requester_id||"")}</p></div></div>`).join(""):
+      `<div class="empty"><b>No intro requests yet.</b><span>They appear here the moment an investor sends one.</span></div>`}</div>
+    ${LIVE?"":'<p class="hint" style="margin-top:28px">Preview mode: data stays in this browser until Supabase keys are added.</p>'}`;
+  $("#signout")?.addEventListener("click",signOut);
+}
+
+async function renderAdmin(){
+  const box=$("#admin-view");
+  if(!isOwner()){box.innerHTML=`<div class="empty" style="margin-top:30px"><b>Owner access only.</b><a class="btn sm" href="#/dashboard">Back to dashboard</a></div>`;return;}
+  box.innerHTML='<p class="hint">Loading…</p>';
+  const reqs=await DB.investorRequests(),projects=await DB.list();
+  box.innerHTML=`<p class="lede" style="margin-bottom:26px">${reqs.filter(r=>r.status==="pending").length} pending investor requests · ${projects.length} published projects${LIVE?"":" · preview mode"}</p>
+  <h3 style="font:500 22px/1.2 var(--display);letter-spacing:.07em;margin:0 0 14px">Investor requests</h3>
+  <div class="rows">${reqs.length?reqs.map((r,idx)=>`<div class="row-item"><div><b>${esc(r.name)} · ${esc(r.firm||"independent")}</b><p>${esc(r.focus)}</p>
+    <p class="hint">${esc(r.email)}${r.link?" · "+esc(r.link):""} · ${esc(r.status||"pending")}</p></div>
+    <div class="actions"><button class="btn sm" data-approve="${r.id??idx}">Approve</button><button class="btn sm" data-deny="${r.id??idx}">Decline</button></div></div>`).join(""):
+    '<div class="empty"><b>No requests yet.</b><span>They land here when investors apply.</span></div>'}</div>`;
+  box.querySelectorAll("[data-approve]").forEach(b=>b.addEventListener("click",async()=>{await DB.setInvestorStatus(b.dataset.approve,"approved");toast("Approved");renderAdmin();}));
+  box.querySelectorAll("[data-deny]").forEach(b=>b.addEventListener("click",async()=>{await DB.setInvestorStatus(b.dataset.deny,"declined");toast("Declined");renderAdmin();}));
+}
+
+/* ---------------- page hook ---------------- */
+function onShow(key,p){
+  if(key==="expeditions")renderDirectory(true);
+  if(key==="project")renderProject(p||"liftoff");
+  if(key==="dashboard")renderDashboard();
+  if(key==="admin")renderAdmin();
+  if(key==="post"){paintScore(postFormValues());$("#post-hint").textContent=session?"Posting as "+session.name:"You'll need an account, so intro requests reach you.";}
+}
+initAuth();
+
+addEventListener("resize",()=>{const k=current;const bg=$(`[data-page="${k}"] .bgtopo`);if(bg)topo(bg,Object.keys(PAGES).indexOf(k)+1,.16);if(k==="founder")medal();});
+route();
+</script>
+
+</body>
+</html>
